@@ -41,7 +41,7 @@ class FormFirstTests(unittest.TestCase):
         os.environ["WEBHOOK_SECRET"] = "test-secret"
         os.environ["PUBLIC_BASE_URL"] = "http://localhost:8080"
         os.environ["BUSINESS_NAME"] = "Harbor HVAC"
-os.environ["MARKETING_URL"] = ""
+        os.environ["MARKETING_URL"] = ""
         os.environ.pop("SMTP_HOST", None)
         os.environ.pop("OWNER_NOTIFY_EMAIL", None)
 
