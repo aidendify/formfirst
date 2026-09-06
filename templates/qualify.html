@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}{% if done %}Thanks{% else %}Quick questions{% endif %} · {{ business_name }}{% endblock %}
+{% block content %}
+<section class="card csat-card">
+  {% if done %}
+  <h1>Thanks</h1>
+  <p class="lede">{{ thank_you }}</p>
+  {% else %}
+  <h1>{{ business_name }}</h1>
+  <p class="lede">Two quick questions so we can help faster.</p>
+  <form method="post" action="{{ url_for('qualify', token=lead.token) }}" class="stack">
+    <label>{{ qualify_q1 }}
+      <textarea name="q1" rows="3" required></textarea>
+    </label>
+    <label>{{ qualify_q2 }}
+      <textarea name="q2" rows="2" required></textarea>
+    </label>
+    <button type="submit" class="btn">Submit</button>
+  </form>
+  {% endif %}
+</section>
+{% endblock %}

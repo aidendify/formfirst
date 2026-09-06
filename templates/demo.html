@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Demo · FormFirst{% endblock %}
+{% block content %}
+<section class="page-head">
+  <div>
+    <h1>Demo form</h1>
+    <p class="lede">Posts a lead through the same ingest path as the webhook (secret stays server-side).</p>
+  </div>
+</section>
+
+<section class="card">
+  <form method="post" action="{{ url_for('demo') }}" class="stack">
+    <label>Name <input type="text" name="name" required autocomplete="name"></label>
+    <label>Email <input type="email" name="email" required autocomplete="email"></label>
+    <label>Phone <input type="text" name="phone" autocomplete="tel"></label>
+    <label>Message <textarea name="message" rows="3" placeholder="What do you need?"></textarea></label>
+    <label>Source <input type="text" name="source" value="demo"></label>
+    <button type="submit" class="btn">Submit lead</button>
+  </form>
+</section>
+{% endblock %}
