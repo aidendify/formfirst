@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}{{ lead.name }} · FormFirst{% endblock %}
+{% block content %}
+<p class="crumb"><a href="{{ url_for('index') }}">Leads</a> / {{ lead.name }}</p>
+
+<section class="page-head">
+  <div>
+    <h1>{{ lead.name }}</h1>
+    <p class="lede">
+      <a href="mailto:{{ lead.email }}">{{ lead.email }}</a>
+      {% if lead.phone %} · {{ lead.phone }}{% endif %}
+      · <span class="badge badge-{{ lead.status }}">{{ lead.status }}</span>
+    </p>
+  </div>
+</section>
+
+<section class="card">
+  <dl class="facts">
+    <div><dt>Created</dt><dd>{{ lead.created_at }}</dd></div>
+    <div><dt>Source</dt><dd>{{ lead.source or "—" }}</dd></div>
+    <div><dt>Page</dt><dd>{{ lead.page_url or "—" }}</dd></div>
+    <div><dt>External id</dt><dd>{{ lead.external_id or "—" }}</dd></div>
+    <div><dt>Replied</dt><dd>{{ lead.replied_at or "—" }}</dd></div>
+    <div><dt>Qualified</dt><dd>{{ lead.qualified_at or "—" }}</dd></div>
+  </dl>
+  <h2>Original message</h2>
+  <pre class="body">{{ lead.message or "(none)" }}</pre>
+  {% if lead.status in ("new", "ready", "replied") %}
+  <form method="post" action="{{ url_for('skip_lead', lead_id=lead.id) }}" class="status-row">
+    <button class="btn btn-quiet" type="submit">Skip</button>
+  </form>
+  {% endif %}
+</section>
+
+<section class="card">
+  <div class="seq-head">
+    <h2>First reply</h2>
+    <div class="seq-actions">
+      <button type="button" class="btn" id="copy-email">Copy reply</button>
+      <button type="button" class="btn btn-quiet" id="copy-link">Copy link</button>
+      {% if smtp_configured and lead.status in ("new", "ready") %}
+      <form method="post" action="{{ url_for('send_now', lead_id=lead.id) }}">
+        <button type="submit" class="btn">Send now</button>
+      </form>
+      {% endif %}
+      {% if lead.status in ("new", "ready") %}
+      <form method="post" action="{{ url_for('mark_sent', lead_id=lead.id) }}">
+        <button type="submit" class="btn btn-quiet">Mark sent</button>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+
+  {% if not smtp_configured %}
+  <p class="hint">SMTP is not configured. Copy the reply or link, paste into your mail client, then Mark sent. Set <code>SMTP_HOST</code> in <code>.env</code> to enable sending.</p>
+  {% endif %}
+
+  <p class="subject"><strong>Subject:</strong> {{ email_subject }}</p>
+  <pre class="body" id="email-body">{{ email_body }}</pre>
+  <p class="hint">Qualify link: <code id="qualify-url">{{ qualify_url }}</code></p>
+</section>
+
+{% if lead.status == 'qualified' or lead.q1_answer or lead.q2_answer %}
+<section class="card">
+  <h2>Qualify answers</h2>
+  <dl class="facts">
+    <div><dt>{{ qualify_q1 }}</dt><dd>{{ lead.q1_answer or "—" }}</dd></div>
+    <div><dt>{{ qualify_q2 }}</dt><dd>{{ lead.q2_answer or "—" }}</dd></div>
+  </dl>
+</section>
+{% endif %}
+
+<script>
+  (function () {
+    var subject = {{ email_subject | tojson }};
+    var body = {{ email_body | tojson }};
+    var link = {{ qualify_url | tojson }};
+    var copyEmail = document.getElementById("copy-email");
+    var copyLink = document.getElementById("copy-link");
+    if (copyEmail) {
+      copyEmail.addEventListener("click", function () {
+        copyText("Subject: " + subject + "\n\n" + body, copyEmail);
+      });
+    }
+    if (copyLink) {
+      copyLink.addEventListener("click", function () {
+        copyText(link, copyLink);
+      });
+    }
+  })();
+</script>
+{% endblock %}

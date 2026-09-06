@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Leads · FormFirst{% endblock %}
+{% block content %}
+<section class="page-head">
+  <div>
+    <h1>Leads</h1>
+    <p class="lede">Form submissions with an instant first reply and two qualify questions.</p>
+  </div>
+</section>
+
+<nav class="filters" aria-label="Filter by status">
+  <a class="{% if not status %}is-on{% endif %}" href="{{ url_for('index') }}">All ({{ counts.get('all', 0) }})</a>
+  <a class="{% if status == 'new' %}is-on{% endif %}" href="{{ url_for('index', status='new') }}">New ({{ counts.get('new', 0) }})</a>
+  <a class="{% if status == 'ready' %}is-on{% endif %}" href="{{ url_for('index', status='ready') }}">Ready ({{ counts.get('ready', 0) }})</a>
+  <a class="{% if status == 'replied' %}is-on{% endif %}" href="{{ url_for('index', status='replied') }}">Replied ({{ counts.get('replied', 0) }})</a>
+  <a class="{% if status == 'qualified' %}is-on{% endif %}" href="{{ url_for('index', status='qualified') }}">Qualified ({{ counts.get('qualified', 0) }})</a>
+  <a class="{% if status == 'skipped' %}is-on{% endif %}" href="{{ url_for('index', status='skipped') }}">Skipped ({{ counts.get('skipped', 0) }})</a>
+</nav>
+
+<section class="card table-wrap">
+  {% if leads %}
+  <table>
+    <thead>
+      <tr>
+        <th>Time</th>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Phone</th>
+        <th>Status</th>
+        <th>Source</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for lead in leads %}
+      <tr>
+        <td>{{ lead.created_at }}</td>
+        <td><a href="{{ url_for('lead_detail', lead_id=lead.id) }}">{{ lead.name }}</a></td>
+        <td>{{ lead.email }}</td>
+        <td>{{ lead.phone or "—" }}</td>
+        <td><span class="badge badge-{{ lead.status }}">{{ lead.status }}</span></td>
+        <td>{{ lead.source or "—" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="empty">No leads yet. Use <a href="{{ url_for('demo') }}">Demo</a> or POST to <code>/hooks/leads</code>.</p>
+  {% endif %}
+</section>
+{% endblock %}
